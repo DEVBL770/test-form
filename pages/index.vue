@@ -1,93 +1,69 @@
 <template>
-    <div class="container">
-      <h1>Formulaire Google Sheet</h1>
+    <div>
       <form @submit.prevent="handleSubmit">
-        <input v-model="form.nom" type="text" placeholder="Nom" required />
-        <input v-model="form.email" type="email" placeholder="Email" required />
-        <textarea v-model="form.message" placeholder="Message" required></textarea>
-  
-        <button :disabled="loading" :class="{ loading: loading }">
-          <span v-if="!loading">Envoyer</span>
-          <span v-else>Envoi...</span>
-        </button>
+        <label for="nom">Nom :</label>
+        <input v-model="form.nom" type="text" id="nom" required />
+        
+        <label for="email">Email :</label>
+        <input v-model="form.email" type="email" id="email" required />
+        
+        <label for="message">Message :</label>
+        <textarea v-model="form.message" id="message" required></textarea>
+        
+        <button type="submit" :disabled="loading">Envoyer</button>
       </form>
   
-      <p v-if="success" class="success">✅ Message envoyé avec succès !</p>
-      <p v-if="error" class="error">❌ Erreur lors de l’envoi.</p>
+      <div v-if="loading">Envoi en cours...</div>
+      <div v-if="success">Merci pour votre message, nous vous répondrons sous peu !</div>
+      <div v-if="error">Erreur lors de l’envoi. Veuillez réessayer.</div>
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   
   const form = ref({
     nom: '',
     email: '',
     message: ''
-  })
+  });
   
-  const loading = ref(false)
-  const success = ref(false)
-  const error = ref(false)
+  const loading = ref(false);
+  const success = ref(false);
+  const error = ref(false);
   
   const handleSubmit = async () => {
-    loading.value = true
-    success.value = false
-    error.value = false
+    loading.value = true;
+    success.value = false;
+    error.value = false;
   
     try {
-      await $fetch('https://script.google.com/macros/s/AKfycbzr--n-NAZniL3vYWUAR6g6sAk3r1NdRu7RG-eYtXkj6ncE-uQpy2rq8YSU96qXUZv3Xg/exec', {
+      const response = await $fetch('https://script.google.com/macros/s/AKfycbzr--n-NAZniL3vYWUAR6g6sAk3r1NdRu7RG-eYtXkj6ncE-uQpy2rq8YSU96qXUZv3Xg/exec', {
         method: 'POST',
-        body: form.value
-      })
-      success.value = true
-      form.value = { nom: '', email: '', message: '' }
+        body: JSON.stringify(form.value),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      console.log('Réponse du serveur:', response);  // Vérifie la réponse
+  
+      if (response.result === 'success') {
+        success.value = true;
+        form.value = { nom: '', email: '', message: '' };  // Réinitialiser le formulaire
+      } else {
+        error.value = true;
+      }
     } catch (e) {
-      console.error(e)
-      error.value = true
+      console.error('Erreur lors de l’envoi:', e);
+      error.value = true;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
-  }
+  };
   </script>
   
   <style scoped>
-  .container {
-    max-width: 400px;
-    margin: 60px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  input, textarea {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  button {
-    padding: 12px;
-    background-color: #0070f3;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  button:hover {
-    background-color: #005cd6;
-  }
-  button:disabled {
-    background-color: #999;
-    cursor: not-allowed;
-  }
-  .success {
-    color: green;
-    font-weight: bold;
-  }
-  .error {
-    color: red;
-    font-weight: bold;
-  }
+  /* Tu peux ajouter un peu de style ici pour ton formulaire */
   </style>
   
