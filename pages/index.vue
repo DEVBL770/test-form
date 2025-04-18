@@ -34,12 +34,9 @@
     error.value = false
   
     try {
-      const response = await $fetch('https://script.google.com/macros/s/AKfycbzr--n-NAZniL3vYWUAR6g6sAk3r1NdRu7RG-eYtXkj6ncE-uQpy2rq8YSU96qXUZv3Xg/exec', {
+      const response = await $fetch('/api/send', {
         method: 'POST',
-        body: form.value,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        body: form.value
       })
   
       if (response.result === 'success') {
