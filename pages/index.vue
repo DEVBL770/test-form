@@ -5,9 +5,12 @@
         <input v-model="form.nom" type="text" placeholder="Nom" required />
         <input v-model="form.email" type="email" placeholder="Email" required />
         <textarea v-model="form.message" placeholder="Message" required></textarea>
-        <button type="submit">Envoyer</button>
+        <button type="submit" :disabled="loading">
+          {{ loading ? 'Envoi en cours...' : 'Envoyer' }}
+        </button>
       </form>
-      <p v-if="success">✅ Message envoyé avec succès !</p>
+      <p v-if="success" class="success">✅ Message envoyé avec succès !</p>
+      <p v-if="error" class="error">❌ Une erreur est survenue. Réessaye.</p>
     </div>
   </template>
   
@@ -20,9 +23,15 @@
     message: ''
   })
   
+  const loading = ref(false)
   const success = ref(false)
+  const error = ref(false)
   
   const handleSubmit = async () => {
+    loading.value = true
+    success.value = false
+    error.value = false
+  
     try {
       await $fetch('https://script.google.com/macros/s/AKfycbzr--n-NAZniL3vYWUAR6g6sAk3r1NdRu7RG-eYtXkj6ncE-uQpy2rq8YSU96qXUZv3Xg/exec', {
         method: 'POST',
@@ -30,8 +39,11 @@
       })
       success.value = true
       form.value = { nom: '', email: '', message: '' }
-    } catch (error) {
-      console.error('Erreur:', error)
+    } catch (err) {
+      console.error('Erreur:', err)
+      error.value = true
+    } finally {
+      loading.value = false
     }
   }
   </script>
@@ -53,6 +65,17 @@
     background-color: #42b983;
     color: white;
     border: none;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  .success {
+    color: green;
+  }
+  .error {
+    color: red;
   }
   </style>
   
