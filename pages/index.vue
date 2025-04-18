@@ -1,16 +1,19 @@
 <template>
     <div class="container">
-      <h1>Formulaire de test</h1>
+      <h1>Formulaire Google Sheet</h1>
       <form @submit.prevent="handleSubmit">
         <input v-model="form.nom" type="text" placeholder="Nom" required />
         <input v-model="form.email" type="email" placeholder="Email" required />
         <textarea v-model="form.message" placeholder="Message" required></textarea>
-        <button type="submit" :disabled="loading">
-          {{ loading ? 'Envoi en cours...' : 'Envoyer' }}
+  
+        <button :disabled="loading" :class="{ loading: loading }">
+          <span v-if="!loading">Envoyer</span>
+          <span v-else>Envoi...</span>
         </button>
       </form>
+  
       <p v-if="success" class="success">✅ Message envoyé avec succès !</p>
-      <p v-if="error" class="error">❌ Une erreur est survenue. Réessaye.</p>
+      <p v-if="error" class="error">❌ Erreur lors de l’envoi.</p>
     </div>
   </template>
   
@@ -39,8 +42,8 @@
       })
       success.value = true
       form.value = { nom: '', email: '', message: '' }
-    } catch (err) {
-      console.error('Erreur:', err)
+    } catch (e) {
+      console.error(e)
       error.value = true
     } finally {
       loading.value = false
@@ -48,34 +51,43 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .container {
     max-width: 400px;
-    margin: 50px auto;
+    margin: 60px auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
   input, textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
   }
   button {
-    padding: 10px;
-    background-color: #42b983;
+    padding: 12px;
+    background-color: #0070f3;
     color: white;
     border: none;
+    border-radius: 8px;
+    font-weight: bold;
     cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover {
+    background-color: #005cd6;
   }
   button:disabled {
-    background-color: #aaa;
+    background-color: #999;
     cursor: not-allowed;
   }
   .success {
     color: green;
+    font-weight: bold;
   }
   .error {
     color: red;
+    font-weight: bold;
   }
   </style>
   
